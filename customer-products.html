@@ -419,12 +419,12 @@
                                 <div class="mt-2">
                                     <span class="text-primary">Remaining: <span id="remaining-amount">₱0.00</span></span>
                                 </div>
-                                <div class="mt-3 p-2 bg-warning bg-opacity-10 rounded">
+                                <div class="mt-2 p-2 bg-warning bg-opacity-10 rounded">
                                     <small class="text-warning">
                                         <i class="fas fa-clock me-1"></i>
                                         <strong>Due Date:</strong> <span id="partial-due-date"></span>
                                         <br>
-                                        <span class="text-muted">You have 1 week to complete the payment</span>
+                                        <span class="text-muted">Choose payment completion date (between 1 week and 1 month)</span>
                                     </small>
                                 </div>
                             </div>
@@ -531,19 +531,19 @@
             const notification = document.createElement('div');
             notification.className = `alert alert-${type === 'add' ? 'success' : 'info'} position-fixed`;
             notification.style.cssText = `
-                        top: 20px;
-                        right: 20px;
-                        z-index: 9999;
-                        min-width: 250px;
-                        opacity: 0;
-                        transition: opacity 0.3s ease;
-                    `;
+                            top: 20px;
+                            right: 20px;
+                            z-index: 9999;
+                            min-width: 250px;
+                            opacity: 0;
+                            transition: opacity 0.3s ease;
+                        `;
             notification.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-heart me-2" style="color: ${type === 'add' ? '#e74c3c' : '#6c757d'}"></i>
-                            ${message}
-                        </div>
-                    `;
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-heart me-2" style="color: ${type === 'add' ? '#e74c3c' : '#6c757d'}"></i>
+                                ${message}
+                            </div>
+                        `;
 
             document.body.appendChild(notification);
 
@@ -659,8 +659,35 @@
 
         function setupPartialDueDate() {
             const dueDateSpan = document.getElementById('partial-due-date');
-            const dueDate = new Date();
-            dueDate.setDate(dueDate.getDate() + 7); // Add 7 days
+            const partialDetails = document.getElementById('partial-payment-details');
+
+            // Create a date selector input
+            const dueDateInputContainer = document.createElement('div');
+            dueDateInputContainer.className = 'mt-3';
+            dueDateInputContainer.innerHTML = `
+                <label for="due-date" class="form-label">Select Due Date:</label>
+                <input type="date" class="form-control" id="due-date" min="" max="">
+                <small class="text-muted">Choose when you'll complete the payment (between 1 week and 1 month)</small>
+            `;
+
+            // Insert before the partial due date div
+            const dueDateInfoDiv = dueDateSpan.closest('.mt-2');
+            partialDetails.insertBefore(dueDateInputContainer, dueDateInfoDiv);
+
+            // Set min date (1 week from now)
+            const minDate = new Date();
+            minDate.setDate(minDate.getDate() + 7);
+
+            // Set max date (1 month from now)
+            const maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() + 30);
+
+            const dueDateInput = document.getElementById('due-date');
+            dueDateInput.min = minDate.toISOString().split('T')[0];
+            dueDateInput.max = maxDate.toISOString().split('T')[0];
+
+            // Default to min date (1 week)
+            dueDateInput.value = minDate.toISOString().split('T')[0];
 
             const options = {
                 weekday: 'long',
@@ -668,7 +695,17 @@
                 month: 'long',
                 day: 'numeric'
             };
-            dueDateSpan.textContent = dueDate.toLocaleDateString('en-US', options);
+
+            // Update the displayed date and add event listener for changes
+            dueDateSpan.textContent = minDate.toLocaleDateString('en-US', options);
+
+            dueDateInput.addEventListener('change', function () {
+                if (this.value) {
+                    const selectedDate = new Date(this.value);
+                    dueDateSpan.textContent = selectedDate.toLocaleDateString('en-US', options);
+                    dueDateSpan.className = 'text-warning fw-bold';
+                }
+            });
         }
 
         function setupAdvancePickupDate() {
@@ -717,13 +754,18 @@
                     return;
                 }
 
-                // Calculate due date (1 week from now)
-                const dueDate = new Date();
-                dueDate.setDate(dueDate.getDate() + 7);
+                // Get selected due date
+                const dueDateInput = document.getElementById('due-date');
+                if (!dueDateInput.value) {
+                    alert('Please select a due date for the remaining payment');
+                    return;
+                }
+
+                const dueDate = new Date(dueDateInput.value);
 
                 paymentDetails.partialAmount = partialAmount;
                 paymentDetails.remainingAmount = totalOrderAmount - partialAmount;
-                paymentDetails.dueDate = dueDate.toISOString().split('T')[0];
+                paymentDetails.dueDate = dueDateInput.value;
                 paymentDetails.dueDateFormatted = dueDate.toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
@@ -737,122 +779,147 @@
                     return;
                 }
 
+                const selectedDate = new Date(pickupDate);
                 paymentDetails.pickupDate = pickupDate;
-                paymentDetails.pickupDateFormatted = new Date(pickupDate).toLocaleDateString('en-US', {
+                paymentDetails.pickupDateFormatted = selectedDate.toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
                 });
+            } else if (selectedPaymentType === 'full') {
+                // Full payment doesn't need additional validation
+                paymentDetails.fullAmount = totalOrderAmount;
+            } else {
+                alert('Please select a valid payment type');
+                return;
             }
 
-            // Close the modal
+            // Hide payment type modal
             const paymentTypeModal = bootstrap.Modal.getInstance(document.getElementById('paymentTypeModal'));
             paymentTypeModal.hide();
 
-            // Process the payment
-            processPayment(paymentDetails);
+            // Show payment summary modal
+            displayPaymentSummary(paymentDetails);
+            const paymentSummaryModal = new bootstrap.Modal(document.getElementById('paymentSummaryModal'));
+            paymentSummaryModal.show();
         }
 
-        function processPayment(paymentDetails) {
+        function displayPaymentSummary(details) {
+            // Get the summary container
+            const summaryContainer = document.getElementById('payment-summary-container');
+
+            // Build HTML based on payment type
+            let summaryHTML = `
+            <div class="payment-summary">
+                <h4 class="mb-3">Payment Summary</h4>
+                <div class="row mb-2">
+                    <div class="col-6">Payment Method:</div>
+                    <div class="col-6 fw-bold">${details.method}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">Payment Type:</div>
+                    <div class="col-6 fw-bold text-capitalize">${details.type}</div>
+                </div>
+        `;
+
+            // Add specific details based on payment type
+            if (details.type === 'partial') {
+                summaryHTML += `
+                <div class="row mb-2">
+                    <div class="col-6">Amount to Pay Now:</div>
+                    <div class="col-6 fw-bold text-success">₱${details.partialAmount.toFixed(2)}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">Remaining Amount:</div>
+                    <div class="col-6 fw-bold text-warning">₱${details.remainingAmount.toFixed(2)}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">Due Date:</div>
+                    <div class="col-6 fw-bold">${details.dueDateFormatted}</div>
+                </div>
+            `;
+            } else if (details.type === 'advance') {
+                summaryHTML += `
+                <div class="row mb-2">
+                    <div class="col-6">Full Amount:</div>
+                    <div class="col-6 fw-bold text-success">₱${details.totalAmount.toFixed(2)}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">Pickup Date:</div>
+                    <div class="col-6 fw-bold">${details.pickupDateFormatted}</div>
+                </div>
+            `;
+            } else {
+                // Full payment
+                summaryHTML += `
+                <div class="row mb-2">
+                    <div class="col-6">Total Amount:</div>
+                    <div class="col-6 fw-bold text-success">₱${details.totalAmount.toFixed(2)}</div>
+                </div>
+            `;
+            }
+
+            // Add checkout button
+            summaryHTML += `
+                <div class="mt-4">
+                    <button class="btn btn-primary w-100" onclick="proceedToCheckout(${JSON.stringify(details).replace(/"/g, '&quot;')})">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        `;
+
+            // Set the HTML content
+            summaryContainer.innerHTML = summaryHTML;
+        }
+
+        function proceedToCheckout(paymentDetails) {
+            // Hide the summary modal
+            const paymentSummaryModal = bootstrap.Modal.getInstance(document.getElementById('paymentSummaryModal'));
+            paymentSummaryModal.hide();
+
             // Show loading state
-            const loadingAlert = document.createElement('div');
-            loadingAlert.className = 'alert alert-info position-fixed';
-            loadingAlert.style.cssText = `
-                    top: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                    min-width: 300px;
-                `;
-            loadingAlert.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                        Processing payment...
-                    </div>
-                `;
-            document.body.appendChild(loadingAlert);
+            document.getElementById('loading-container').style.display = 'flex';
 
-            // Simulate payment processing
+            // Store payment details in session/local storage for the checkout page
+            localStorage.setItem('paymentDetails', JSON.stringify(paymentDetails));
+
+            // Simulate processing (would be replaced with actual API call)
             setTimeout(() => {
-                loadingAlert.remove();
-
-                // Show success message
-                let successMessage = '';
-                switch (paymentDetails.type) {
-                    case 'full':
-                        successMessage = `Payment of ₱${paymentDetails.totalAmount.toFixed(2)} processed successfully via ${paymentDetails.method}!`;
-                        break;
-                    case 'partial':
-                        successMessage = `Partial payment of ₱${paymentDetails.partialAmount.toFixed(2)} processed via ${paymentDetails.method}. Remaining ₱${paymentDetails.remainingAmount.toFixed(2)} to be paid by ${paymentDetails.dueDateFormatted}.`;
-                        break;
-                    case 'advance':
-                        successMessage = `Order reserved successfully! Total amount of ₱${paymentDetails.totalAmount.toFixed(2)} to be paid on pickup date: ${paymentDetails.pickupDateFormatted}.`;
-                        break;
-                }
-
-                const successAlert = document.createElement('div');
-                successAlert.className = 'alert alert-success position-fixed';
-                successAlert.style.cssText = `
-                        top: 20px;
-                        right: 20px;
-                        z-index: 9999;
-                        min-width: 300px;
-                    `;
-                successAlert.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-check-circle me-2"></i>
-                            ${successMessage}
-                        </div>
-                    `;
-                document.body.appendChild(successAlert);
-
-                // Clear cart and redirect after delay
-                setTimeout(() => {
-                    successAlert.remove();
-                    // Clear cart here
-                    // Redirect to orders page or dashboard
-                    // window.location.href = 'customer-orders.html';
-                }, 4000);
-
-                console.log('Payment processed:', paymentDetails);
+                // Complete the payment process and redirect to confirmation page
+                window.location.href = 'checkout-confirmation.html';
             }, 2000);
         }
 
-        // Call this function after products are loaded
+        // Initial setup - set global variables
+        let selectedPaymentMethod = '';
+        let selectedPaymentType = '';
+        let totalOrderAmount = 0;
+
+        // Event listener for document ready
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize favorites on page load
-            updateFavoritesCount();
+            // Attach event listeners to payment method and type selectors if they exist
+            const paymentMethodButtons = document.querySelectorAll('.payment-method-button');
+            if (paymentMethodButtons.length) {
+                paymentMethodButtons.forEach(button => {
+                    button.addEventListener('click', function () {
+                        selectPaymentMethod(this.dataset.method);
+                    });
+                });
+            }
 
-            // If you have existing products loaded, initialize their states
-            setTimeout(initializeFavoriteStates, 100);
+            const paymentTypeOptions = document.querySelectorAll('.payment-type-option');
+            if (paymentTypeOptions.length) {
+                paymentTypeOptions.forEach(option => {
+                    option.addEventListener('click', function () {
+                        selectPaymentType(this.dataset.type);
+                    });
+                });
+            }
+
+            const confirmTypeButton = document.getElementById('confirm-payment-type');
+            if (confirmTypeButton) {
+                confirmTypeButton.addEventListener('click', confirmPaymentType);
+            }
         });
-
-        // Example of how to modify your existing product card generation
-        // Add this heart button structure when creating product cards dynamically:
-        /*
-        function createProductCard(product) {
-            return `
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-img-container" style="position: relative;">
-                            <img src="${product.image_url}" class="card-img-top" alt="${product.name}">
-                            <button class="favorite-heart" data-product-id="${product.id}" onclick="toggleFavorite(this, '${product.id}')">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">${product.name}</h5>
-                            <p class="card-text">${product.description}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 mb-0">₱${product.price}</span>
-                                <button class="btn btn-primary" onclick="addToCart('${product.id}')">Add to Cart</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        */
-    </script>
-</body>
-</html>
