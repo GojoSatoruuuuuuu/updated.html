@@ -144,39 +144,39 @@
             background: white;
         }
 
-            .payment-type-option:hover {
-                border-color: #007bff;
-                background: #f8f9fa;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            }
+        .payment-type-option:hover {
+            border-color: #007bff;
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-            .payment-type-option.selected {
-                border-color: #28a745;
-                background: #f8fff9;
-                box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
-            }
+        .payment-type-option.selected {
+            border-color: #28a745;
+            background: #f8fff9;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        }
 
-            .payment-type-option .payment-icon {
-                font-size: 24px;
-                margin-bottom: 10px;
-                color: #007bff;
-            }
+        .payment-type-option .payment-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #007bff;
+        }
 
-            .payment-type-option.selected .payment-icon {
-                color: #28a745;
-            }
+        .payment-type-option.selected .payment-icon {
+            color: #28a745;
+        }
 
-            .payment-type-option h6 {
-                font-weight: bold;
-                margin-bottom: 8px;
-            }
+        .payment-type-option h6 {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
 
-            .payment-type-option p {
-                font-size: 14px;
-                color: #6c757d;
-                margin-bottom: 0;
-            }
+        .payment-type-option p {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 0;
+        }
 
         .amount-info {
             background: #f8f9fa;
@@ -192,10 +192,10 @@
             padding: 8px 12px;
         }
 
-            .partial-payment-input:focus {
-                border-color: #007bff;
-                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-            }
+        .partial-payment-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
     </style>
 </head>
 
@@ -409,9 +409,9 @@
                             <h6>Partial Payment</h6>
                             <p>Pay a portion now, rest on pickup</p>
                             <div id="partial-payment-details" style="display: none;">
-                                <input type="number"
-                                       class="form-control partial-payment-input mt-2"
-                                       id="partial-amount"
+                                <input type="number" 
+                                       class="form-control partial-payment-input mt-2" 
+                                       id="partial-amount" 
                                        placeholder="Enter amount"
                                        min="1"
                                        step="0.01">
@@ -419,12 +419,12 @@
                                 <div class="mt-2">
                                     <span class="text-primary">Remaining: <span id="remaining-amount">₱0.00</span></span>
                                 </div>
-                                <div class="mt-2 p-2 bg-warning bg-opacity-10 rounded">
+                                <div class="mt-3 p-2 bg-warning bg-opacity-10 rounded">
                                     <small class="text-warning">
                                         <i class="fas fa-clock me-1"></i>
                                         <strong>Due Date:</strong> <span id="partial-due-date"></span>
                                         <br>
-                                        <span class="text-muted">Choose payment completion date (between 1 week and 1 month)</span>
+                                        <span class="text-muted">You have 1 week to complete the payment</span>
                                     </small>
                                 </div>
                             </div>
@@ -442,9 +442,9 @@
                             <div id="advance-payment-details" style="display: none;">
                                 <div class="mt-3">
                                     <label for="pickup-date" class="form-label">Select Pickup Date:</label>
-                                    <input type="date"
-                                           class="form-control"
-                                           id="pickup-date"
+                                    <input type="date" 
+                                           class="form-control" 
+                                           id="pickup-date" 
                                            min="">
                                     <small class="text-muted">Choose when you want to pickup and pay for your order</small>
                                 </div>
@@ -531,19 +531,19 @@
             const notification = document.createElement('div');
             notification.className = `alert alert-${type === 'add' ? 'success' : 'info'} position-fixed`;
             notification.style.cssText = `
-                            top: 20px;
-                            right: 20px;
-                            z-index: 9999;
-                            min-width: 250px;
-                            opacity: 0;
-                            transition: opacity 0.3s ease;
-                        `;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    min-width: 250px;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
             notification.innerHTML = `
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-heart me-2" style="color: ${type === 'add' ? '#e74c3c' : '#6c757d'}"></i>
-                                ${message}
-                            </div>
-                        `;
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-heart me-2" style="color: ${type === 'add' ? '#e74c3c' : '#6c757d'}"></i>
+                        ${message}
+                    </div>
+                `;
 
             document.body.appendChild(notification);
 
@@ -586,20 +586,20 @@
         // Payment functions
         function selectPaymentMethod(method) {
             selectedPaymentMethod = method;
-
+            
             // Get total amount from the order review
             const totalElement = document.getElementById('review-total-price');
             totalOrderAmount = parseFloat(totalElement.textContent.replace('₱', '').replace(',', '')) || 0;
-
+            
             // Update modal content
             document.getElementById('modal-payment-method').textContent = method;
             document.getElementById('modal-total-amount').textContent = `₱${totalOrderAmount.toFixed(2)}`;
             document.getElementById('full-amount').textContent = `₱${totalOrderAmount.toFixed(2)}`;
-
+            
             // Hide the confirmation modal and show payment type modal
             const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
             confirmModal.hide();
-
+            
             const paymentTypeModal = new bootstrap.Modal(document.getElementById('paymentTypeModal'));
             paymentTypeModal.show();
         }
@@ -609,21 +609,21 @@
             document.querySelectorAll('.payment-type-option').forEach(option => {
                 option.classList.remove('selected');
             });
-
+            
             // Add selection to clicked option
             const selectedOption = document.querySelector(`[data-type="${type}"]`);
             selectedOption.classList.add('selected');
-
+            
             selectedPaymentType = type;
-
+            
             // Handle type-specific details
             const partialDetails = document.getElementById('partial-payment-details');
             const advanceDetails = document.getElementById('advance-payment-details');
-
+            
             // Hide all details first
             partialDetails.style.display = 'none';
             advanceDetails.style.display = 'none';
-
+            
             if (type === 'partial') {
                 partialDetails.style.display = 'block';
                 setupPartialPaymentCalculation();
@@ -632,7 +632,7 @@
                 advanceDetails.style.display = 'block';
                 setupAdvancePickupDate();
             }
-
+            
             // Enable confirm button
             document.getElementById('confirm-payment-type').disabled = false;
         }
@@ -640,13 +640,13 @@
         function setupPartialPaymentCalculation() {
             const partialInput = document.getElementById('partial-amount');
             const remainingSpan = document.getElementById('remaining-amount');
-
+            
             partialInput.max = totalOrderAmount - 50; // Ensure at least 50 remains for pickup
-
-            partialInput.addEventListener('input', function () {
+            
+            partialInput.addEventListener('input', function() {
                 const partialAmount = parseFloat(this.value) || 0;
                 const remaining = totalOrderAmount - partialAmount;
-
+                
                 if (partialAmount >= 50 && remaining >= 50) {
                     remainingSpan.textContent = `₱${remaining.toFixed(2)}`;
                     remainingSpan.className = 'text-primary';
@@ -659,77 +659,40 @@
 
         function setupPartialDueDate() {
             const dueDateSpan = document.getElementById('partial-due-date');
-            const partialDetails = document.getElementById('partial-payment-details');
-
-            // Create a date selector input
-            const dueDateInputContainer = document.createElement('div');
-            dueDateInputContainer.className = 'mt-3';
-            dueDateInputContainer.innerHTML = `
-                <label for="due-date" class="form-label">Select Due Date:</label>
-                <input type="date" class="form-control" id="due-date" min="" max="">
-                <small class="text-muted">Choose when you'll complete the payment (between 1 week and 1 month)</small>
-            `;
-
-            // Insert before the partial due date div
-            const dueDateInfoDiv = dueDateSpan.closest('.mt-2');
-            partialDetails.insertBefore(dueDateInputContainer, dueDateInfoDiv);
-
-            // Set min date (1 week from now)
-            const minDate = new Date();
-            minDate.setDate(minDate.getDate() + 7);
-
-            // Set max date (1 month from now)
-            const maxDate = new Date();
-            maxDate.setDate(maxDate.getDate() + 30);
-
-            const dueDateInput = document.getElementById('due-date');
-            dueDateInput.min = minDate.toISOString().split('T')[0];
-            dueDateInput.max = maxDate.toISOString().split('T')[0];
-
-            // Default to min date (1 week)
-            dueDateInput.value = minDate.toISOString().split('T')[0];
-
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 7); // Add 7 days
+            
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
             };
-
-            // Update the displayed date and add event listener for changes
-            dueDateSpan.textContent = minDate.toLocaleDateString('en-US', options);
-
-            dueDateInput.addEventListener('change', function () {
-                if (this.value) {
-                    const selectedDate = new Date(this.value);
-                    dueDateSpan.textContent = selectedDate.toLocaleDateString('en-US', options);
-                    dueDateSpan.className = 'text-warning fw-bold';
-                }
-            });
+            dueDateSpan.textContent = dueDate.toLocaleDateString('en-US', options);
         }
 
         function setupAdvancePickupDate() {
             const pickupDateInput = document.getElementById('pickup-date');
             const selectedDateSpan = document.getElementById('selected-pickup-date');
-
+            
             // Set minimum date to tomorrow
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             pickupDateInput.min = tomorrow.toISOString().split('T')[0];
-
+            
             // Set maximum date to 30 days from now
             const maxDate = new Date();
             maxDate.setDate(maxDate.getDate() + 30);
             pickupDateInput.max = maxDate.toISOString().split('T')[0];
-
-            pickupDateInput.addEventListener('change', function () {
+            
+            pickupDateInput.addEventListener('change', function() {
                 if (this.value) {
                     const selectedDate = new Date(this.value);
-                    const options = {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
+                    const options = { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
                     };
                     selectedDateSpan.textContent = selectedDate.toLocaleDateString('en-US', options);
                     selectedDateSpan.className = 'text-success fw-bold';
@@ -746,26 +709,21 @@
                 type: selectedPaymentType,
                 totalAmount: totalOrderAmount
             };
-
+            
             if (selectedPaymentType === 'partial') {
                 const partialAmount = parseFloat(document.getElementById('partial-amount').value);
                 if (!partialAmount || partialAmount < 50 || partialAmount > totalOrderAmount - 50) {
                     alert('Please enter a valid partial payment amount (minimum ₱50, at least ₱50 must remain for pickup)');
                     return;
                 }
-
-                // Get selected due date
-                const dueDateInput = document.getElementById('due-date');
-                if (!dueDateInput.value) {
-                    alert('Please select a due date for the remaining payment');
-                    return;
-                }
-
-                const dueDate = new Date(dueDateInput.value);
-
+                
+                // Calculate due date (1 week from now)
+                const dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + 7);
+                
                 paymentDetails.partialAmount = partialAmount;
                 paymentDetails.remainingAmount = totalOrderAmount - partialAmount;
-                paymentDetails.dueDate = dueDateInput.value;
+                paymentDetails.dueDate = dueDate.toISOString().split('T')[0];
                 paymentDetails.dueDateFormatted = dueDate.toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
@@ -778,148 +736,123 @@
                     alert('Please select a pickup date for your advance order');
                     return;
                 }
-
-                const selectedDate = new Date(pickupDate);
+                
                 paymentDetails.pickupDate = pickupDate;
-                paymentDetails.pickupDateFormatted = selectedDate.toLocaleDateString('en-US', {
+                paymentDetails.pickupDateFormatted = new Date(pickupDate).toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
                 });
-            } else if (selectedPaymentType === 'full') {
-                // Full payment doesn't need additional validation
-                paymentDetails.fullAmount = totalOrderAmount;
-            } else {
-                alert('Please select a valid payment type');
-                return;
             }
-
-            // Hide payment type modal
+            
+            // Close the modal
             const paymentTypeModal = bootstrap.Modal.getInstance(document.getElementById('paymentTypeModal'));
             paymentTypeModal.hide();
-
-            // Show payment summary modal
-            displayPaymentSummary(paymentDetails);
-            const paymentSummaryModal = new bootstrap.Modal(document.getElementById('paymentSummaryModal'));
-            paymentSummaryModal.show();
+            
+            // Process the payment
+            processPayment(paymentDetails);
         }
 
-        function displayPaymentSummary(details) {
-            // Get the summary container
-            const summaryContainer = document.getElementById('payment-summary-container');
-
-            // Build HTML based on payment type
-            let summaryHTML = `
-            <div class="payment-summary">
-                <h4 class="mb-3">Payment Summary</h4>
-                <div class="row mb-2">
-                    <div class="col-6">Payment Method:</div>
-                    <div class="col-6 fw-bold">${details.method}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-6">Payment Type:</div>
-                    <div class="col-6 fw-bold text-capitalize">${details.type}</div>
-                </div>
-        `;
-
-            // Add specific details based on payment type
-            if (details.type === 'partial') {
-                summaryHTML += `
-                <div class="row mb-2">
-                    <div class="col-6">Amount to Pay Now:</div>
-                    <div class="col-6 fw-bold text-success">₱${details.partialAmount.toFixed(2)}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-6">Remaining Amount:</div>
-                    <div class="col-6 fw-bold text-warning">₱${details.remainingAmount.toFixed(2)}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-6">Due Date:</div>
-                    <div class="col-6 fw-bold">${details.dueDateFormatted}</div>
-                </div>
-            `;
-            } else if (details.type === 'advance') {
-                summaryHTML += `
-                <div class="row mb-2">
-                    <div class="col-6">Full Amount:</div>
-                    <div class="col-6 fw-bold text-success">₱${details.totalAmount.toFixed(2)}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-6">Pickup Date:</div>
-                    <div class="col-6 fw-bold">${details.pickupDateFormatted}</div>
-                </div>
-            `;
-            } else {
-                // Full payment
-                summaryHTML += `
-                <div class="row mb-2">
-                    <div class="col-6">Total Amount:</div>
-                    <div class="col-6 fw-bold text-success">₱${details.totalAmount.toFixed(2)}</div>
-                </div>
-            `;
-            }
-
-            // Add checkout button
-            summaryHTML += `
-                <div class="mt-4">
-                    <button class="btn btn-primary w-100" onclick="proceedToCheckout(${JSON.stringify(details).replace(/"/g, '&quot;')})">
-                        Proceed to Checkout
-                    </button>
-                </div>
-            </div>
-        `;
-
-            // Set the HTML content
-            summaryContainer.innerHTML = summaryHTML;
-        }
-
-        function proceedToCheckout(paymentDetails) {
-            // Hide the summary modal
-            const paymentSummaryModal = bootstrap.Modal.getInstance(document.getElementById('paymentSummaryModal'));
-            paymentSummaryModal.hide();
-
+        function processPayment(paymentDetails) {
             // Show loading state
-            document.getElementById('loading-container').style.display = 'flex';
-
-            // Store payment details in session/local storage for the checkout page
-            localStorage.setItem('paymentDetails', JSON.stringify(paymentDetails));
-
-            // Simulate processing (would be replaced with actual API call)
+            const loadingAlert = document.createElement('div');
+            loadingAlert.className = 'alert alert-info position-fixed';
+            loadingAlert.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            `;
+            loadingAlert.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    Processing payment...
+                </div>
+            `;
+            document.body.appendChild(loadingAlert);
+            
+            // Simulate payment processing
             setTimeout(() => {
-                // Complete the payment process and redirect to confirmation page
-                window.location.href = 'checkout-confirmation.html';
+                loadingAlert.remove();
+                
+                // Show success message
+                let successMessage = '';
+                switch(paymentDetails.type) {
+                    case 'full':
+                        successMessage = `Payment of ₱${paymentDetails.totalAmount.toFixed(2)} processed successfully via ${paymentDetails.method}!`;
+                        break;
+                    case 'partial':
+                        successMessage = `Partial payment of ₱${paymentDetails.partialAmount.toFixed(2)} processed via ${paymentDetails.method}. Remaining ₱${paymentDetails.remainingAmount.toFixed(2)} to be paid by ${paymentDetails.dueDateFormatted}.`;
+                        break;
+                    case 'advance':
+                        successMessage = `Order reserved successfully! Total amount of ₱${paymentDetails.totalAmount.toFixed(2)} to be paid on pickup date: ${paymentDetails.pickupDateFormatted}.`;
+                        break;
+                }
+                
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success position-fixed';
+                successAlert.style.cssText = `
+                    top: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    min-width: 300px;
+                `;
+                successAlert.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle me-2"></i>
+                        ${successMessage}
+                    </div>
+                `;
+                document.body.appendChild(successAlert);
+                
+                // Clear cart and redirect after delay
+                setTimeout(() => {
+                    successAlert.remove();
+                    // Clear cart here
+                    // Redirect to orders page or dashboard
+                    // window.location.href = 'customer-orders.html';
+                }, 4000);
+                
+                console.log('Payment processed:', paymentDetails);
             }, 2000);
         }
 
-        // Initial setup - set global variables
-        let selectedPaymentMethod = '';
-        let selectedPaymentType = '';
-        let totalOrderAmount = 0;
-
-        // Event listener for document ready
+        // Call this function after products are loaded
         document.addEventListener('DOMContentLoaded', function () {
-            // Attach event listeners to payment method and type selectors if they exist
-            const paymentMethodButtons = document.querySelectorAll('.payment-method-button');
-            if (paymentMethodButtons.length) {
-                paymentMethodButtons.forEach(button => {
-                    button.addEventListener('click', function () {
-                        selectPaymentMethod(this.dataset.method);
-                    });
-                });
-            }
+            // Initialize favorites on page load
+            updateFavoritesCount();
 
-            const paymentTypeOptions = document.querySelectorAll('.payment-type-option');
-            if (paymentTypeOptions.length) {
-                paymentTypeOptions.forEach(option => {
-                    option.addEventListener('click', function () {
-                        selectPaymentType(this.dataset.type);
-                    });
-                });
-            }
-
-            const confirmTypeButton = document.getElementById('confirm-payment-type');
-            if (confirmTypeButton) {
-                confirmTypeButton.addEventListener('click', confirmPaymentType);
-            }
+            // If you have existing products loaded, initialize their states
+            setTimeout(initializeFavoriteStates, 100);
         });
+
+        // Example of how to modify your existing product card generation
+        // Add this heart button structure when creating product cards dynamically:
+        /*
+        function createProductCard(product) {
+            return `
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-img-container" style="position: relative;">
+                            <img src="${product.image_url}" class="card-img-top" alt="${product.name}">
+                            <button class="favorite-heart" data-product-id="${product.id}" onclick="toggleFavorite(this, '${product.id}')">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">${product.name}</h5>
+                            <p class="card-text">${product.description}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0">₱${product.price}</span>
+                                <button class="btn btn-primary" onclick="addToCart('${product.id}')">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        */
+    </script>
+</body>
+</html>
