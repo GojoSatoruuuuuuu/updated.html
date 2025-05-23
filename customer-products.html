@@ -196,6 +196,86 @@
             border-color: #007bff;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
+
+        /* Final Confirmation Modal Styles */
+        .confirmation-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+
+        .confirmation-section h6 {
+            color: #007bff;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .confirmation-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .confirmation-detail.total {
+            font-weight: bold;
+            font-size: 16px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .payment-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 15px 0;
+        }
+
+        .payment-warning .warning-icon {
+            color: #856404;
+            margin-right: 8px;
+        }
+
+        .order-summary-items {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            background: white;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-item-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .order-item-quantity {
+            margin: 0 15px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .order-item-price {
+            font-weight: bold;
+            color: #28a745;
+        }
     </style>
 </head>
 
@@ -459,10 +539,82 @@
                     </div>
 
                     <div class="d-grid gap-2 mt-4">
-                        <button type="button" class="btn btn-primary" id="confirm-payment-type" disabled onclick="confirmPaymentType()">
+                        <button type="button" class="btn btn-primary" id="confirm-payment-type" disabled onclick="showFinalConfirmation()">
                             Proceed with Payment
                         </button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Confirmation Modal -->
+    <div class="modal fade" id="finalConfirmationModal" tabindex="-1" aria-labelledby="finalConfirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="finalConfirmationModalLabel">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Confirm Your Payment
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-receipt text-success" style="font-size: 48px;"></i>
+                        <h6 class="mt-3 text-muted">Please review your order details before confirming payment</h6>
+                    </div>
+
+                    <!-- Order Summary Section -->
+                    <div class="confirmation-section">
+                        <h6><i class="fas fa-shopping-cart me-2"></i>Order Summary</h6>
+                        <div class="order-summary-items" id="final-order-items">
+                            <!-- Order items will be populated here -->
+                        </div>
+                        <div class="confirmation-detail total">
+                            <span>Total Items:</span>
+                            <span id="final-total-quantity">0</span>
+                        </div>
+                        <div class="confirmation-detail total">
+                            <span>Total Amount:</span>
+                            <span id="final-total-amount">₱0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Details Section -->
+                    <div class="confirmation-section">
+                        <h6><i class="fas fa-credit-card me-2"></i>Payment Details</h6>
+                        <div class="confirmation-detail">
+                            <span>Payment Method:</span>
+                            <span id="final-payment-method">Cash</span>
+                        </div>
+                        <div class="confirmation-detail">
+                            <span>Payment Type:</span>
+                            <span id="final-payment-type">Full Payment</span>
+                        </div>
+                        <div id="final-payment-specifics">
+                            <!-- Payment-specific details will be shown here -->
+                        </div>
+                    </div>
+
+                    <!-- Important Notice -->
+                    <div class="payment-warning">
+                        <i class="fas fa-exclamation-triangle warning-icon"></i>
+                        <strong>Important:</strong> 
+                        <span id="payment-warning-text">Please ensure all details are correct before proceeding. This action cannot be undone.</span>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="button" class="btn btn-success btn-lg" onclick="confirmPaymentType()">
+                            <i class="fas fa-lock me-2"></i>
+                            Confirm & Process Payment
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="goBackToPaymentType()">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Go Back
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel Order</button>
                     </div>
                 </div>
             </div>
@@ -478,6 +630,7 @@
         let selectedPaymentMethod = '';
         let selectedPaymentType = '';
         let totalOrderAmount = 0;
+        let currentPaymentDetails = {};
 
         // Favorites functionality - add this to your customer-products.js file
         let favorites = JSON.parse(localStorage.getItem('userFavorites')) || [];
@@ -639,220 +792,4 @@
 
         function setupPartialPaymentCalculation() {
             const partialInput = document.getElementById('partial-amount');
-            const remainingSpan = document.getElementById('remaining-amount');
-            
-            partialInput.max = totalOrderAmount - 50; // Ensure at least 50 remains for pickup
-            
-            partialInput.addEventListener('input', function() {
-                const partialAmount = parseFloat(this.value) || 0;
-                const remaining = totalOrderAmount - partialAmount;
-                
-                if (partialAmount >= 50 && remaining >= 50) {
-                    remainingSpan.textContent = `₱${remaining.toFixed(2)}`;
-                    remainingSpan.className = 'text-primary';
-                } else {
-                    remainingSpan.textContent = `₱${remaining.toFixed(2)} (Invalid)`;
-                    remainingSpan.className = 'text-danger';
-                }
-            });
-        }
-
-        function setupPartialDueDate() {
-            const dueDateSpan = document.getElementById('partial-due-date');
-            const dueDate = new Date();
-            dueDate.setDate(dueDate.getDate() + 7); // Add 7 days
-            
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            };
-            dueDateSpan.textContent = dueDate.toLocaleDateString('en-US', options);
-        }
-
-        function setupAdvancePickupDate() {
-            const pickupDateInput = document.getElementById('pickup-date');
-            const selectedDateSpan = document.getElementById('selected-pickup-date');
-            
-            // Set minimum date to tomorrow
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            pickupDateInput.min = tomorrow.toISOString().split('T')[0];
-            
-            // Set maximum date to 30 days from now
-            const maxDate = new Date();
-            maxDate.setDate(maxDate.getDate() + 30);
-            pickupDateInput.max = maxDate.toISOString().split('T')[0];
-            
-            pickupDateInput.addEventListener('change', function() {
-                if (this.value) {
-                    const selectedDate = new Date(this.value);
-                    const options = { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    };
-                    selectedDateSpan.textContent = selectedDate.toLocaleDateString('en-US', options);
-                    selectedDateSpan.className = 'text-success fw-bold';
-                } else {
-                    selectedDateSpan.textContent = 'Not selected';
-                    selectedDateSpan.className = 'text-muted';
-                }
-            });
-        }
-
-        function confirmPaymentType() {
-            let paymentDetails = {
-                method: selectedPaymentMethod,
-                type: selectedPaymentType,
-                totalAmount: totalOrderAmount
-            };
-            
-            if (selectedPaymentType === 'partial') {
-                const partialAmount = parseFloat(document.getElementById('partial-amount').value);
-                if (!partialAmount || partialAmount < 50 || partialAmount > totalOrderAmount - 50) {
-                    alert('Please enter a valid partial payment amount (minimum ₱50, at least ₱50 must remain for pickup)');
-                    return;
-                }
-                
-                // Calculate due date (1 week from now)
-                const dueDate = new Date();
-                dueDate.setDate(dueDate.getDate() + 7);
-                
-                paymentDetails.partialAmount = partialAmount;
-                paymentDetails.remainingAmount = totalOrderAmount - partialAmount;
-                paymentDetails.dueDate = dueDate.toISOString().split('T')[0];
-                paymentDetails.dueDateFormatted = dueDate.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            } else if (selectedPaymentType === 'advance') {
-                const pickupDate = document.getElementById('pickup-date').value;
-                if (!pickupDate) {
-                    alert('Please select a pickup date for your advance order');
-                    return;
-                }
-                
-                paymentDetails.pickupDate = pickupDate;
-                paymentDetails.pickupDateFormatted = new Date(pickupDate).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            }
-            
-            // Close the modal
-            const paymentTypeModal = bootstrap.Modal.getInstance(document.getElementById('paymentTypeModal'));
-            paymentTypeModal.hide();
-            
-            // Process the payment
-            processPayment(paymentDetails);
-        }
-
-        function processPayment(paymentDetails) {
-            // Show loading state
-            const loadingAlert = document.createElement('div');
-            loadingAlert.className = 'alert alert-info position-fixed';
-            loadingAlert.style.cssText = `
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                min-width: 300px;
-            `;
-            loadingAlert.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                    Processing payment...
-                </div>
-            `;
-            document.body.appendChild(loadingAlert);
-            
-            // Simulate payment processing
-            setTimeout(() => {
-                loadingAlert.remove();
-                
-                // Show success message
-                let successMessage = '';
-                switch(paymentDetails.type) {
-                    case 'full':
-                        successMessage = `Payment of ₱${paymentDetails.totalAmount.toFixed(2)} processed successfully via ${paymentDetails.method}!`;
-                        break;
-                    case 'partial':
-                        successMessage = `Partial payment of ₱${paymentDetails.partialAmount.toFixed(2)} processed via ${paymentDetails.method}. Remaining ₱${paymentDetails.remainingAmount.toFixed(2)} to be paid by ${paymentDetails.dueDateFormatted}.`;
-                        break;
-                    case 'advance':
-                        successMessage = `Order reserved successfully! Total amount of ₱${paymentDetails.totalAmount.toFixed(2)} to be paid on pickup date: ${paymentDetails.pickupDateFormatted}.`;
-                        break;
-                }
-                
-                const successAlert = document.createElement('div');
-                successAlert.className = 'alert alert-success position-fixed';
-                successAlert.style.cssText = `
-                    top: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                    min-width: 300px;
-                `;
-                successAlert.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle me-2"></i>
-                        ${successMessage}
-                    </div>
-                `;
-                document.body.appendChild(successAlert);
-                
-                // Clear cart and redirect after delay
-                setTimeout(() => {
-                    successAlert.remove();
-                    // Clear cart here
-                    // Redirect to orders page or dashboard
-                    // window.location.href = 'customer-orders.html';
-                }, 4000);
-                
-                console.log('Payment processed:', paymentDetails);
-            }, 2000);
-        }
-
-        // Call this function after products are loaded
-        document.addEventListener('DOMContentLoaded', function () {
-            // Initialize favorites on page load
-            updateFavoritesCount();
-
-            // If you have existing products loaded, initialize their states
-            setTimeout(initializeFavoriteStates, 100);
-        });
-
-        // Example of how to modify your existing product card generation
-        // Add this heart button structure when creating product cards dynamically:
-        /*
-        function createProductCard(product) {
-            return `
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-img-container" style="position: relative;">
-                            <img src="${product.image_url}" class="card-img-top" alt="${product.name}">
-                            <button class="favorite-heart" data-product-id="${product.id}" onclick="toggleFavorite(this, '${product.id}')">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">${product.name}</h5>
-                            <p class="card-text">${product.description}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 mb-0">₱${product.price}</span>
-                                <button class="btn btn-primary" onclick="addToCart('${product.id}')">Add to Cart</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        */
-    </script>
-</body>
-</html>
+            const remainingSpan = document.getElementById('
